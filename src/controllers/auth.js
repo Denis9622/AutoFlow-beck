@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import User from "../models/user.js";
 import Session from "../models/session.js";
 import axios from "axios";
-import SupportMessage from "../models/supportMessage.js";
+// import SupportMessage from "../models/supportMessage.js";
 
 // Контроллер для регистрации пользователя
 export const createUserController = async (req, res, next) => {
@@ -213,21 +213,26 @@ export const sendMessageToAI = async (req, res, next) => {
 };
 
 
+
+
 export const createSupportMessage = async (req, res, next) => {
   try {
+    const { SupportMessage } = req.db; // ✅ Берём модель из `req.db`
     const { message } = req.body;
-    if (!message) throw createHttpError(400, "Сообщение не может быть пустым");
 
-    // Сохраняем сообщение в БД
-    const newMessage = await SupportMessage.create({
-      text: message,
-      status: "pending",
-    });
+    if (!message) {
+      return res.status(400).json({ error: "Сообщение не может быть пустым" });
+    }
+
+    const newMessage = await SupportMessage.create({ text: message });
+
+    console.log("📝 Сообщение успешно добавлено в базу support:", newMessage);
 
     // Имитация ответа поддержки
     const reply = "Спасибо за обращение! Ваша заявка принята.";
 
-    res.status(201).json({ reply });
+    // Отправка нового сообщения и имитации ответа на фронт
+    res.status(201).json({ newMessage, reply });
   } catch (error) {
     next(error);
   }

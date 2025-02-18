@@ -8,5 +8,4 @@ const supportMessageSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const SupportMessage = mongoose.model("SupportMessage", supportMessageSchema);
-export default SupportMessage;
+export default supportMessageSchema;

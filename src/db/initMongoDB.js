@@ -1,37 +1,39 @@
 import mongoose from "mongoose";
-import { getEnvVar } from "../utils/getEnvVar.js";
+import supportMessageSchema from "../models/supportMessage.js";
+
 
 export const initMongoDB = async () => {
   try {
-    const user = getEnvVar("MONGODB_USER");
-    const pwd = getEnvVar("MONGODB_PASSWORD");
-    const url = getEnvVar("MONGODB_URL");
-    const userDb = getEnvVar("MONGODB_USER_DB"); // База данных пользователей
-    const supportDb = getEnvVar("MONGODB_SUPPORT_DB"); // База данных поддержки
+    const user = process.env.MONGODB_USER;
+    const pwd = process.env.MONGODB_PASSWORD;
+    const url = process.env.MONGODB_URL;
+    const userDb = process.env.MONGODB_USER_DB;
+    const supportDb = process.env.MONGODB_SUPPORT_DB;
 
-    console.log("Connecting to MongoDB for users...");
-    console.log("MONGODB_USER:", user);
-    console.log("MONGODB_URL:", url);
-    console.log("MONGODB_USER_DB:", userDb);
+    console.log(`🔌 Подключаемся к MongoDB...`);
+    console.log(`🔗 User DB: ${userDb}`);
+    console.log(`🔗 Support DB: ${supportDb}`);
 
     await mongoose.connect(
-      `mongodb+srv://${user}:${pwd}@${url}/${userDb}?retryWrites=true&w=majority`,
-      { useNewUrlParser: true, useUnifiedTopology: true }
+      `mongodb+srv://${user}:${pwd}@${url}/${userDb}?retryWrites=true&w=majority`
     );
-    console.log("Connection to MongoDB for users successfully established!");
+    console.log("✅ Подключено к user DB!");
 
-    console.log("Connecting to MongoDB for support...");
-    console.log("MONGODB_SUPPORT_DB:", supportDb);
-
-    const supportConnection = await mongoose.createConnection(
-      `mongodb+srv://${user}:${pwd}@${url}/${supportDb}?retryWrites=true&w=majority`,
-      { useNewUrlParser: true, useUnifiedTopology: true }
+    const supportConnection = mongoose.createConnection(
+      `mongodb+srv://${user}:${pwd}@${url}/${supportDb}?retryWrites=true&w=majority`
     );
-    console.log("Connection to MongoDB for support successfully established!");
 
-    return { supportConnection }; // Возвращаем соединение для использования в приложении
+    console.log("✅ Подключено к support DB!");
+
+    const SupportMessage = supportConnection.model(
+      "SupportMessage",
+      supportMessageSchema
+    );
+    console.log("✅ SupportMessage модель создана!");
+
+    return { supportConnection, SupportMessage }; // ✅ Возвращаем SupportMessage
   } catch (error) {
-    console.error("Error connecting to MongoDB:", error);
+    console.error("❌ Ошибка подключения к MongoDB:", error.message);
     throw error;
   }
 };
