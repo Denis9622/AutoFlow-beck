@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/user.js";
 import Session from "../models/session.js";
-
+import axios from "axios";
 // Контроллер для регистрации пользователя
 export const createUserController = async (req, res, next) => {
   try {
@@ -156,5 +156,40 @@ export const getCurrentUserController = async (req, res, next) => {
     });
   } catch (error) {
     next(error);
+  }
+};
+
+
+// Контроллер для отправки сообщений в AI
+export const sendMessageToAI = async (req, res, next) => {
+  try {
+    const { message } = req.body;
+    if (!message) {
+      throw createHttpError(400, "Message text is required");
+    }
+
+    console.log("📩 Отправка сообщения AI:", message);
+
+    const response = await axios.post(
+      "https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill",
+      { inputs: message },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.HUGGING_FACE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log("🤖 Ответ AI:", response.data);
+
+    if (response.data && Array.isArray(response.data) && response.data.length > 0) {
+      res.json({ aiResponse: response.data[0].generated_text });
+    } else {
+      throw createHttpError(500, "AI returned an empty response");
+    }
+  } catch (error) {
+    console.error("Ошибка AI:", error.response?.data || error.message);
+    next(createHttpError(500, "Ошибка при получении ответа от AI"));
   }
 };

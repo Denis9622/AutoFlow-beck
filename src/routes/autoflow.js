@@ -10,9 +10,11 @@ import {
   loginUserController,
   logoutUserController,
   resetPasswordController,
-  getCurrentUserController, // Контроллер для получения текущего пользователя
+  getCurrentUserController,
+  sendMessageToAI, // Контроллер для получения текущего пользователя
 } from "../controllers/auth.js";
 import { ctrlWrapper } from "../utils/ctrlWrapper.js";
+
 
 const router = express.Router();
 
@@ -37,5 +39,8 @@ router.post(
 
 // Маршрут для получения текущего пользователя
 router.get("/current-user", ctrlWrapper(getCurrentUserController));
+
+// Новый маршрут для отправки сообщения в OpenAI
+router.post("/sendMessage", sendMessageToAI);
 
 export default router;
