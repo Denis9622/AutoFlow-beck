@@ -4,6 +4,8 @@ import jwt from "jsonwebtoken";
 import User from "../models/user.js";
 import Session from "../models/session.js";
 import axios from "axios";
+import SupportMessage from "../models/supportMessage.js";
+
 // Контроллер для регистрации пользователя
 export const createUserController = async (req, res, next) => {
   try {
@@ -183,13 +185,50 @@ export const sendMessageToAI = async (req, res, next) => {
 
     console.log("🤖 Ответ AI:", response.data);
 
-    if (response.data && Array.isArray(response.data) && response.data.length > 0) {
-      res.json({ aiResponse: response.data[0].generated_text });
+    if (
+      response.data &&
+      Array.isArray(response.data) &&
+      response.data[0]?.generated_text
+    ) {
+      res.json({ response: response.data[0].generated_text });
     } else {
       throw createHttpError(500, "AI returned an empty response");
     }
   } catch (error) {
     console.error("Ошибка AI:", error.response?.data || error.message);
+
+    // Логирование подробной информации об ошибке
+    if (error.response) {
+      console.error("Данные ошибки:", error.response.data);
+      console.error("Статус ошибки:", error.response.status);
+      console.error("Заголовки ошибки:", error.response.headers);
+    } else if (error.request) {
+      console.error("Запрос ошибки:", error.request);
+    } else {
+      console.error("Сообщение ошибки:", error.message);
+    }
+
     next(createHttpError(500, "Ошибка при получении ответа от AI"));
+  }
+};
+
+
+export const createSupportMessage = async (req, res, next) => {
+  try {
+    const { message } = req.body;
+    if (!message) throw createHttpError(400, "Сообщение не может быть пустым");
+
+    // Сохраняем сообщение в БД
+    const newMessage = await SupportMessage.create({
+      text: message,
+      status: "pending",
+    });
+
+    // Имитация ответа поддержки
+    const reply = "Спасибо за обращение! Ваша заявка принята.";
+
+    res.status(201).json({ reply });
+  } catch (error) {
+    next(error);
   }
 };

@@ -11,7 +11,8 @@ import {
   logoutUserController,
   resetPasswordController,
   getCurrentUserController,
-  sendMessageToAI, // Контроллер для получения текущего пользователя
+  sendMessageToAI,
+  
 } from "../controllers/auth.js";
 import { ctrlWrapper } from "../utils/ctrlWrapper.js";
 
