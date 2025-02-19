@@ -1,22 +1,26 @@
-// import SupportMessage from "../models/supportMessage.js";
-
 export const createSupportMessage = async (req, res, next) => {
   try {
-    const { SupportMessage } = req.db; // ✅ Берём модель из `req.db`
-    const { message } = req.body;
+    const { SupportMessage } = req.db;
+    const { message, userId, userName, userEmail } = req.body;
 
-    if (!message) {
-      return res.status(400).json({ error: "Сообщение не может быть пустым" });
+    if (!message || !userId || !userName || !userEmail) {
+      return res.status(400).json({
+        error: "Все поля (message, userId, userName, userEmail) обязательны.",
+      });
     }
 
-    const newMessage = await SupportMessage.create({ text: message });
+    const newMessage = await SupportMessage.create({
+      text: message,
+      userId,
+      userName,
+      userEmail,
+    });
 
-    console.log("📝 Сообщение успешно добавлено в базу support:", newMessage);
+    console.log("Сообщение успешно добавлено в базу support:", newMessage);
 
     // Имитация ответа поддержки
     const reply = "Спасибо за обращение! Ваша заявка принята.";
 
-    // Отправка нового сообщения и имитации ответа на фронт
     res.status(201).json({ newMessage, reply });
   } catch (error) {
     next(error);

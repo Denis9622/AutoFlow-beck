@@ -82,12 +82,18 @@ export const loginUserController = async (req, res, next) => {
     res.status(200).json({
       status: 200,
       message: "User successfully logged in!",
-      data: { accessToken },
+      data: {
+        userId: user._id,
+        userName: user.name,
+        userEmail: user.email,
+        accessToken,
+      },
     });
   } catch (error) {
     next(error);
   }
 };
+
 
 
 // Контроллер для логаута пользователя
