@@ -5,6 +5,10 @@ import { initMongoDB } from "./db/initMongoDB.js";
 import autoFlowRouter from "./routes/users.js";
 import supportRouter from "./routes/support.js";
 import { dbMiddleware } from "./middlewares/dbMiddleware.js";
+import { sendMessageToAI } from "./controllers/auth.js"; // импорт контроллера
+import integrationRoutes from "./routes/integrationRoutes.js";
+
+
 
 dotenv.config();
 
@@ -21,6 +25,10 @@ app.use(express.json());
 app.use(dbMiddleware); // ✅ Подключаем мидлвар перед маршрутами
 app.use("/api/autoflow", autoFlowRouter);
 app.use("/api/support", supportRouter);
+app.post("/api/sendMessage", sendMessageToAI);
+app.use("/api/integrations", integrationRoutes);
+
+
 console.log("MONGODB_USER:", process.env.MONGODB_USER);
 console.log("MONGODB_PASSWORD:", process.env.MONGODB_PASSWORD);
 console.log("MONGODB_URL:", process.env.MONGODB_URL);
